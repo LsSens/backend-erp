@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import Joi from 'joi';
 import { validateRequest } from '../validation';
 
@@ -167,4 +167,4 @@ describe('Validation Middleware', () => {
       expect(mockNext).not.toHaveBeenCalled();
     });
   });
-}); 
+});

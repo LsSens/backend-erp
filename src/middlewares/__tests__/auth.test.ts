@@ -1,14 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
-import { authenticateToken, requireRole, requireAdmin, requireManager, requireUser } from '../auth';
+import type { NextFunction, Request, Response } from 'express';
 import { UserRole } from '../../types';
-import { verifyToken, hasPermission, extractTokenFromHeader } from '../../utils/jwt';
+import { extractTokenFromHeader, hasPermission, verifyToken } from '../../utils/jwt';
+import { authenticateToken, requireAdmin, requireManager, requireRole, requireUser } from '../auth';
 
 // Mock JWT utils
 jest.mock('../../utils/jwt');
 
 const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>;
 const mockHasPermission = hasPermission as jest.MockedFunction<typeof hasPermission>;
-const mockExtractTokenFromHeader = extractTokenFromHeader as jest.MockedFunction<typeof extractTokenFromHeader>;
+const mockExtractTokenFromHeader = extractTokenFromHeader as jest.MockedFunction<
+  typeof extractTokenFromHeader
+>;
 
 describe('Auth Middleware', () => {
   let mockRequest: Partial<Request>;
@@ -198,4 +200,4 @@ describe('Auth Middleware', () => {
       expect(mockNext).toHaveBeenCalled();
     });
   });
-}); 
+});

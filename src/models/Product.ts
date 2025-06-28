@@ -66,4 +66,4 @@ export interface IUpdateProduct {
   category?: string;
   stock?: number;
   isActive?: boolean;
-} 
+}

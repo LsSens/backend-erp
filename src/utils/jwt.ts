@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JwtPayload, UserRole } from '@/types';
+import { type JwtPayload, UserRole } from '@/types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
@@ -13,7 +13,7 @@ export const generateToken = (payload: Omit<JwtPayload, 'iat' | 'exp'>): string 
 export const verifyToken = (token: string): JwtPayload => {
   try {
     return jwt.verify(token, JWT_SECRET) as JwtPayload;
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Invalid token');
   }
 };
@@ -22,7 +22,7 @@ export const extractTokenFromHeader = (authorization: string): string => {
   if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new Error('Token not provided or invalid format');
   }
-  
+
   return authorization.substring(7);
 };
 
@@ -34,4 +34,4 @@ export const hasPermission = (userRole: UserRole, requiredRole: UserRole): boole
   };
 
   return roleHierarchy[userRole] >= roleHierarchy[requiredRole];
-}; 
+};

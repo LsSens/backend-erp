@@ -1,6 +1,6 @@
-import { UserService } from '../userService';
+import type { ICreateUser, IUpdateUser } from '../../models/User';
 import { UserRole } from '../../types';
-import { ICreateUser, IUpdateUser } from '../../models/User';
+import { UserService } from '../userService';
 
 jest.mock('../../config/database', () => ({
   dynamoDB: {
@@ -26,8 +26,21 @@ jest.mock('../../config/cognito', () => ({
   deleteCognitoUser: jest.fn(),
 }));
 
-import { dynamoDB, createUserRecord, getUserById, getUserByEmail, updateUserRecord, deleteUserRecord, scanUsers } from '../../config/database';
-import { createCognitoUser, setUserPassword, updateUserAttributes, deleteCognitoUser } from '../../config/cognito';
+import {
+  createCognitoUser,
+  deleteCognitoUser,
+  setUserPassword,
+  updateUserAttributes,
+} from '../../config/cognito';
+import {
+  createUserRecord,
+  deleteUserRecord,
+  dynamoDB,
+  getUserByEmail,
+  getUserById,
+  scanUsers,
+  updateUserRecord,
+} from '../../config/database';
 
 describe('UserService', () => {
   const mockUser = {
@@ -89,12 +102,16 @@ describe('UserService', () => {
         role: UserRole.USER,
         password: 'password123',
       };
-      await expect(UserService.createUser(userData)).rejects.toThrow('Error creating user: Cognito error');
+      await expect(UserService.createUser(userData)).rejects.toThrow(
+        'Error creating user: Cognito error'
+      );
     });
     it('should throw error if DynamoDB fails', async () => {
       (createCognitoUser as jest.Mock).mockResolvedValue({});
       (setUserPassword as jest.Mock).mockResolvedValue({});
-      (dynamoDB.put as jest.Mock).mockReturnValue({ promise: jest.fn().mockRejectedValue(new Error('Dynamo error')) });
+      (dynamoDB.put as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockRejectedValue(new Error('Dynamo error')),
+      });
       (createUserRecord as jest.Mock).mockReturnValue({});
       const userData: ICreateUser = {
         email: 'fail2@example.com',
@@ -102,53 +119,73 @@ describe('UserService', () => {
         role: UserRole.USER,
         password: 'password123',
       };
-      await expect(UserService.createUser(userData)).rejects.toThrow('Error creating user: Dynamo error');
+      await expect(UserService.createUser(userData)).rejects.toThrow(
+        'Error creating user: Dynamo error'
+      );
     });
   });
 
   describe('getUserById', () => {
     it('should return user if found', async () => {
-      (dynamoDB.get as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Item: mockDynamoUser }) });
+      (dynamoDB.get as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Item: mockDynamoUser }),
+      });
       (getUserById as jest.Mock).mockReturnValue({});
       const result = await UserService.getUserById('1');
       expect(result).toEqual(mockUser);
     });
     it('should return null if not found', async () => {
-      (dynamoDB.get as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Item: null }) });
+      (dynamoDB.get as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Item: null }),
+      });
       (getUserById as jest.Mock).mockReturnValue({});
       const result = await UserService.getUserById('2');
       expect(result).toBeNull();
     });
     it('should throw error if DynamoDB fails', async () => {
-      (dynamoDB.get as jest.Mock).mockReturnValue({ promise: jest.fn().mockRejectedValue(new Error('Dynamo error')) });
+      (dynamoDB.get as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockRejectedValue(new Error('Dynamo error')),
+      });
       (getUserById as jest.Mock).mockReturnValue({});
-      await expect(UserService.getUserById('1')).rejects.toThrow('Error getting user: Dynamo error');
+      await expect(UserService.getUserById('1')).rejects.toThrow(
+        'Error getting user: Dynamo error'
+      );
     });
   });
 
   describe('getUserByEmail', () => {
     it('should return user if found', async () => {
-      (dynamoDB.query as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Items: [mockDynamoUser] }) });
+      (dynamoDB.query as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Items: [mockDynamoUser] }),
+      });
       (getUserByEmail as jest.Mock).mockReturnValue({});
       const result = await UserService.getUserByEmail('test@example.com');
       expect(result).toEqual(mockUser);
     });
     it('should return null if not found', async () => {
-      (dynamoDB.query as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Items: [] }) });
+      (dynamoDB.query as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Items: [] }),
+      });
       (getUserByEmail as jest.Mock).mockReturnValue({});
       const result = await UserService.getUserByEmail('notfound@example.com');
       expect(result).toBeNull();
     });
     it('should throw error if DynamoDB fails', async () => {
-      (dynamoDB.query as jest.Mock).mockReturnValue({ promise: jest.fn().mockRejectedValue(new Error('Dynamo error')) });
+      (dynamoDB.query as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockRejectedValue(new Error('Dynamo error')),
+      });
       (getUserByEmail as jest.Mock).mockReturnValue({});
-      await expect(UserService.getUserByEmail('fail@example.com')).rejects.toThrow('Error getting user by email: Dynamo error');
+      await expect(UserService.getUserByEmail('fail@example.com')).rejects.toThrow(
+        'Error getting user by email: Dynamo error'
+      );
     });
   });
 
   describe('listUsers', () => {
     it('should return paginated users', async () => {
-      (dynamoDB.scan as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Items: [mockDynamoUser] }) });
+      (dynamoDB.scan as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Items: [mockDynamoUser] }),
+      });
       (scanUsers as jest.Mock).mockReturnValue({});
       const result = await UserService.listUsers(1, 10);
       expect(result.items).toHaveLength(1);
@@ -158,16 +195,22 @@ describe('UserService', () => {
       expect(result.totalPages).toBe(1);
     });
     it('should return empty list if no users', async () => {
-      (dynamoDB.scan as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Items: [] }) });
+      (dynamoDB.scan as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Items: [] }),
+      });
       (scanUsers as jest.Mock).mockReturnValue({});
       const result = await UserService.listUsers(1, 10);
       expect(result.items).toHaveLength(0);
       expect(result.total).toBe(0);
     });
     it('should throw error if DynamoDB fails', async () => {
-      (dynamoDB.scan as jest.Mock).mockReturnValue({ promise: jest.fn().mockRejectedValue(new Error('Dynamo error')) });
+      (dynamoDB.scan as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockRejectedValue(new Error('Dynamo error')),
+      });
       (scanUsers as jest.Mock).mockReturnValue({});
-      await expect(UserService.listUsers(1, 10)).rejects.toThrow('Error listing users: Dynamo error');
+      await expect(UserService.listUsers(1, 10)).rejects.toThrow(
+        'Error listing users: Dynamo error'
+      );
     });
   });
 
@@ -175,7 +218,9 @@ describe('UserService', () => {
     it('should update user successfully', async () => {
       jest.spyOn(UserService, 'getUserById').mockResolvedValue(mockUser);
       (updateUserAttributes as jest.Mock).mockResolvedValue({});
-      (dynamoDB.update as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Attributes: mockDynamoUser }) });
+      (dynamoDB.update as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Attributes: mockDynamoUser }),
+      });
       (updateUserRecord as jest.Mock).mockReturnValue({});
       const updates: IUpdateUser = { name: 'Updated', role: UserRole.MANAGER };
       const result = await UserService.updateUser('1', updates);
@@ -191,15 +236,21 @@ describe('UserService', () => {
     it('should throw error if DynamoDB update fails', async () => {
       jest.spyOn(UserService, 'getUserById').mockResolvedValue(mockUser);
       (updateUserAttributes as jest.Mock).mockResolvedValue({});
-      (dynamoDB.update as jest.Mock).mockReturnValue({ promise: jest.fn().mockResolvedValue({ Attributes: null }) });
+      (dynamoDB.update as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockResolvedValue({ Attributes: null }),
+      });
       (updateUserRecord as jest.Mock).mockReturnValue({});
       const updates: IUpdateUser = { name: 'Updated' };
       await expect(UserService.updateUser('1', updates)).rejects.toThrow('Error updating user');
     });
     it('should throw error if any error occurs', async () => {
-      jest.spyOn(UserService, 'getUserById').mockImplementation(() => { throw new Error('Any error'); });
+      jest.spyOn(UserService, 'getUserById').mockImplementation(() => {
+        throw new Error('Any error');
+      });
       const updates: IUpdateUser = { name: 'Updated' };
-      await expect(UserService.updateUser('1', updates)).rejects.toThrow('Error updating user: Any error');
+      await expect(UserService.updateUser('1', updates)).rejects.toThrow(
+        'Error updating user: Any error'
+      );
     });
   });
 
@@ -220,9 +271,13 @@ describe('UserService', () => {
     it('should throw error if DynamoDB delete fails', async () => {
       jest.spyOn(UserService, 'getUserById').mockResolvedValue(mockUser);
       (deleteCognitoUser as jest.Mock).mockResolvedValue({});
-      (dynamoDB.delete as jest.Mock).mockReturnValue({ promise: jest.fn().mockRejectedValue(new Error('Dynamo error')) });
+      (dynamoDB.delete as jest.Mock).mockReturnValue({
+        promise: jest.fn().mockRejectedValue(new Error('Dynamo error')),
+      });
       (deleteUserRecord as jest.Mock).mockReturnValue({});
-      await expect(UserService.deleteUser('1')).rejects.toThrow('Error deleting user: Dynamo error');
+      await expect(UserService.deleteUser('1')).rejects.toThrow(
+        'Error deleting user: Dynamo error'
+      );
     });
   });
-}); 
+});

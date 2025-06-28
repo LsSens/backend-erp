@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { verifyToken, extractTokenFromHeader, hasPermission } from '@/utils/jwt';
+import type { NextFunction, Request, Response } from 'express';
 import { UserRole } from '@/types';
+import { extractTokenFromHeader, hasPermission, verifyToken } from '@/utils/jwt';
 
 // Extend Request interface to include user
 declare global {
@@ -19,7 +19,7 @@ declare global {
 export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
   try {
     const authorization = req.headers.authorization;
-    
+
     if (!authorization) {
       res.status(401).json({
         success: false,
@@ -30,10 +30,10 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     const token = extractTokenFromHeader(authorization);
     const decoded = verifyToken(token);
-    
+
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch (_error) {
     res.status(401).json({
       success: false,
       error: 'Invalid or expired token',
@@ -65,4 +65,4 @@ export const requireRole = (requiredRole: UserRole) => {
 
 export const requireAdmin = requireRole(UserRole.ADMIN);
 export const requireManager = requireRole(UserRole.MANAGER);
-export const requireUser = requireRole(UserRole.USER); 
+export const requireUser = requireRole(UserRole.USER);

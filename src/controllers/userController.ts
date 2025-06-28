@@ -1,14 +1,14 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import type { ICreateUser, IUpdateUser } from '@/models/User';
 import { UserService } from '@/services/userService';
-import { ApiResponse } from '@/types';
-import { ICreateUser, IUpdateUser } from '@/models/User';
+import type { ApiResponse } from '@/types';
 
 export class UserController {
   // List all users
   static async listUsers(req: Request, res: Response): Promise<void> {
     try {
-      const page = parseInt((req.query as any).page as string) || 1;
-      const limit = parseInt((req.query as any).limit as string) || 10;
+      const page = Number.parseInt((req.query as any).page as string) || 1;
+      const limit = Number.parseInt((req.query as any).limit as string) || 10;
 
       const users = await UserService.listUsers(page, limit);
 
@@ -161,4 +161,4 @@ export class UserController {
       res.status(500).json(response);
     }
   }
-} 
+}

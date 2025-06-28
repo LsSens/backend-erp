@@ -1,8 +1,8 @@
-import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import routes from './routes';
 
 // Load environment variables
@@ -18,8 +18,8 @@ app.use(cors());
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // limit per IP
+  windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
+  max: Number.parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // limit per IP
   message: {
     success: false,
     error: 'Too many requests, try again later',
@@ -37,7 +37,7 @@ app.use(`/api/${API_VERSION}`, routes);
 // Error handling middleware
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Error:', err);
-  
+
   res.status(500).json({
     success: false,
     error: 'Internal server error',
@@ -59,4 +59,4 @@ app.listen(PORT, () => {
   console.log(`🔍 Health check at http://localhost:${PORT}/api/${API_VERSION}/health`);
 });
 
-export default app; 
+export default app;

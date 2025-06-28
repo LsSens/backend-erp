@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import { CognitoUser, UserRole } from '@/types';
+import { type CognitoUser, UserRole } from '@/types';
 
 // Configure AWS Cognito
 export const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
@@ -100,10 +100,10 @@ export const extractUserAttributes = (cognitoUser: any): CognitoUser => {
   });
 
   return {
-    sub: userAttributes['sub'] || '',
-    email: userAttributes['email'] || '',
-    email_verified: userAttributes['email_verified'] === 'true',
-    name: userAttributes['name'] || '',
+    sub: userAttributes.sub || '',
+    email: userAttributes.email || '',
+    email_verified: userAttributes.email_verified === 'true',
+    name: userAttributes.name || '',
     role: (userAttributes['custom:role'] as UserRole) || UserRole.USER,
   };
-}; 
+};

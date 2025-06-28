@@ -1,6 +1,11 @@
-import Joi from 'joi';
-import { UserSchema, createUserSchema, updateUserSchema, ICreateUser, IUpdateUser } from '../User';
 import { UserRole } from '../../types';
+import {
+  createUserSchema,
+  type ICreateUser,
+  type IUpdateUser,
+  UserSchema,
+  updateUserSchema,
+} from '../User';
 
 describe('User Model', () => {
   describe('UserSchema', () => {
@@ -225,7 +230,7 @@ describe('User Model', () => {
     it('should accept all valid roles', () => {
       const roles = [UserRole.ADMIN, UserRole.MANAGER, UserRole.USER];
 
-      roles.forEach(role => {
+      roles.forEach((role) => {
         const validUser = {
           id: '123e4567-e89b-12d3-a456-426614174000',
           email: 'test@example.com',
@@ -244,7 +249,7 @@ describe('User Model', () => {
     it('should reject invalid roles', () => {
       const invalidRoles = ['superadmin', 'guest', 'moderator', ''];
 
-      invalidRoles.forEach(role => {
+      invalidRoles.forEach((role) => {
         const invalidUser = {
           id: '123e4567-e89b-12d3-a456-426614174000',
           email: 'test@example.com',
@@ -261,4 +266,4 @@ describe('User Model', () => {
       });
     });
   });
-}); 
+});

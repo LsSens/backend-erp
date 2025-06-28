@@ -1,10 +1,10 @@
-import request from 'supertest';
-import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
+import express from 'express';
 import rateLimit from 'express-rate-limit';
-import userRoutes from '../userRoutes';
+import helmet from 'helmet';
+import request from 'supertest';
 import { UserRole } from '../../types';
+import userRoutes from '../userRoutes';
 
 const app = express();
 const API_VERSION = 'v1';
@@ -48,12 +48,16 @@ jest.mock('../../middlewares/auth', () => ({
 
 jest.mock('../../controllers/userController', () => ({
   UserController: {
-    listUsers: jest.fn((req, res) => res.status(200).json({ success: true, data: [], message: 'Users listed' })),
+    listUsers: jest.fn((_req, res) =>
+      res.status(200).json({ success: true, data: [], message: 'Users listed' })
+    ),
     getUserById: jest.fn((req, res) => {
       if (req.params.id === 'notfound') {
         return res.status(404).json({ success: false, error: 'User not found' });
       }
-      return res.status(200).json({ success: true, data: { id: req.params.id }, message: 'User found' });
+      return res
+        .status(200)
+        .json({ success: true, data: { id: req.params.id }, message: 'User found' });
     }),
     createUser: jest.fn((req, res) => {
       if (!req.body.email) {
@@ -99,7 +103,12 @@ describe('User Routes', () => {
   });
 
   it('POST /api/v1/users - should create user', async () => {
-    const user = { email: 'test@example.com', name: 'Test', role: UserRole.USER, password: '123456' };
+    const user = {
+      email: 'test@example.com',
+      name: 'Test',
+      role: UserRole.USER,
+      password: '123456',
+    };
     const res = await request(app).post('/api/v1/users').send(user);
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -139,4 +148,4 @@ describe('User Routes', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error).toBe('User not found');
   });
-}); 
+});

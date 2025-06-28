@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { type Request, type Response, Router } from 'express';
 import userRoutes from './userRoutes';
 
 const router = Router();
@@ -15,4 +15,4 @@ router.get('/health', (_req: Request, res: Response) => {
 // API routes
 router.use('/users', userRoutes);
 
-export default router; 
+export default router;

@@ -76,4 +76,4 @@ export interface DynamoDBUser {
   updatedAt: string;
   GSI1PK?: string; // EMAIL#${email}
   GSI1SK?: string; // USER#${id}
-} 
+}

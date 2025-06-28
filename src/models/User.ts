@@ -6,7 +6,9 @@ export const UserSchema = Joi.object({
   id: Joi.string().uuid().required(),
   email: Joi.string().email().required(),
   name: Joi.string().min(2).max(100).required(),
-  role: Joi.string().valid(...Object.values(UserRole)).required(),
+  role: Joi.string()
+    .valid(...Object.values(UserRole))
+    .required(),
   isActive: Joi.boolean().required(),
   createdAt: Joi.string().isoDate().required(),
   updatedAt: Joi.string().isoDate().required(),
@@ -15,13 +17,17 @@ export const UserSchema = Joi.object({
 export const createUserSchema = Joi.object({
   email: Joi.string().email().required(),
   name: Joi.string().min(2).max(100).required(),
-  role: Joi.string().valid(...Object.values(UserRole)).required(),
+  role: Joi.string()
+    .valid(...Object.values(UserRole))
+    .required(),
   password: Joi.string().min(6).required(),
 });
 
 export const updateUserSchema = Joi.object({
   name: Joi.string().min(2).max(100).optional(),
-  role: Joi.string().valid(...Object.values(UserRole)).optional(),
+  role: Joi.string()
+    .valid(...Object.values(UserRole))
+    .optional(),
   isActive: Joi.boolean().optional(),
 });
 
@@ -58,4 +64,4 @@ export interface IUpdateUser {
   name?: string;
   role?: UserRole;
   isActive?: boolean;
-} 
+}

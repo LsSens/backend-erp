@@ -1,12 +1,12 @@
-import { UserController } from '../userController';
+import type { Request, Response } from 'express';
 import { UserService } from '../../services/userService';
-import { Request, Response } from 'express';
 import { UserRole } from '../../types';
+import { UserController } from '../userController';
 
 // Mock UserService
 jest.mock('../../services/userService');
 
-const mockUserService = UserService as jest.Mocked<typeof UserService>;
+const _mockUserService = UserService as jest.Mocked<typeof UserService>;
 
 const mockResponse = () => {
   const res: Partial<Response> = {};
@@ -32,7 +32,13 @@ describe('UserController', () => {
 
   describe('listUsers', () => {
     it('should return users successfully', async () => {
-      (UserService.listUsers as jest.Mock).mockResolvedValue({ items: [mockUser], total: 1, page: 1, limit: 10, totalPages: 1 });
+      (UserService.listUsers as jest.Mock).mockResolvedValue({
+        items: [mockUser],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      });
       const req = { query: { page: '1', limit: '10' } } as unknown as Request;
       const res = mockResponse();
       await UserController.listUsers(req, res);
@@ -45,7 +51,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.listUsers(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'DB error' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'DB error' })
+      );
     });
   });
 
@@ -56,14 +64,18 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.getUserById(req, res);
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: mockUser }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true, data: mockUser })
+      );
     });
     it('should return 400 if id not provided', async () => {
       const req = { params: {} } as unknown as Request;
       const res = mockResponse();
       await UserController.getUserById(req, res);
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'User ID not provided' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'User ID not provided' })
+      );
     });
     it('should return 404 if user not found', async () => {
       (UserService.getUserById as jest.Mock).mockResolvedValue(null);
@@ -71,7 +83,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.getUserById(req, res);
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'User not found' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'User not found' })
+      );
     });
     it('should handle errors', async () => {
       (UserService.getUserById as jest.Mock).mockRejectedValue(new Error('DB error'));
@@ -79,7 +93,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.getUserById(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'DB error' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'DB error' })
+      );
     });
   });
 
@@ -90,7 +106,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.createUser(req, res);
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: mockUser }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true, data: mockUser })
+      );
     });
     it('should handle errors', async () => {
       (UserService.createUser as jest.Mock).mockRejectedValue(new Error('DB error'));
@@ -98,7 +116,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.createUser(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'DB error' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'DB error' })
+      );
     });
   });
 
@@ -109,14 +129,18 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.updateUser(req, res);
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: mockUser }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true, data: mockUser })
+      );
     });
     it('should return 400 if id not provided', async () => {
       const req = { params: {}, body: {} } as unknown as Request;
       const res = mockResponse();
       await UserController.updateUser(req, res);
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'User ID not provided' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'User ID not provided' })
+      );
     });
     it('should handle errors', async () => {
       (UserService.updateUser as jest.Mock).mockRejectedValue(new Error('DB error'));
@@ -124,7 +148,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.updateUser(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'DB error' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'DB error' })
+      );
     });
   });
 
@@ -142,7 +168,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.deleteUser(req, res);
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'User ID not provided' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'User ID not provided' })
+      );
     });
     it('should handle errors', async () => {
       (UserService.deleteUser as jest.Mock).mockRejectedValue(new Error('DB error'));
@@ -150,7 +178,9 @@ describe('UserController', () => {
       const res = mockResponse();
       await UserController.deleteUser(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, error: 'DB error' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, error: 'DB error' })
+      );
     });
   });
-}); 
+});

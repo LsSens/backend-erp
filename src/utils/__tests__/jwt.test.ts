@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { generateToken, verifyToken, hasPermission } from '../jwt';
-import { UserRole, JwtPayload } from '../../types';
+import { type JwtPayload, UserRole } from '../../types';
+import { generateToken, hasPermission, verifyToken } from '../jwt';
 
 // Mock JWT
 jest.mock('jsonwebtoken');
@@ -35,11 +35,7 @@ describe('JWT Utils', () => {
       const result = generateToken(mockUser);
 
       expect(result).toBe(mockToken);
-      expect(mockJwt.sign).toHaveBeenCalledWith(
-        mockUser,
-        'test-secret-key',
-        { expiresIn: '24h' }
-      );
+      expect(mockJwt.sign).toHaveBeenCalledWith(mockUser, 'test-secret-key', { expiresIn: '24h' });
     });
 
     it('should throw error when JWT sign fails', () => {
@@ -132,4 +128,4 @@ describe('JWT Utils', () => {
       expect(hasPermission(UserRole.USER, UserRole.USER)).toBe(true);
     });
   });
-}); 
+});

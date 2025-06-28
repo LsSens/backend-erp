@@ -1,5 +1,10 @@
-import Joi from 'joi';
-import { ProductSchema, createProductSchema, updateProductSchema, ICreateProduct, IUpdateProduct } from '../Product';
+import {
+  createProductSchema,
+  type ICreateProduct,
+  type IUpdateProduct,
+  ProductSchema,
+  updateProductSchema,
+} from '../Product';
 
 describe('Product Model', () => {
   describe('ProductSchema Validation', () => {
@@ -13,7 +18,7 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(validProduct);
@@ -30,7 +35,7 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
@@ -48,7 +53,7 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
@@ -66,12 +71,14 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
       expect(result.error).toBeDefined();
-      expect(result.error?.details[0].message).toContain('"name" length must be at least 2 characters long');
+      expect(result.error?.details[0].message).toContain(
+        '"name" length must be at least 2 characters long'
+      );
     });
 
     it('should fail validation when name is too long', () => {
@@ -84,12 +91,14 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
       expect(result.error).toBeDefined();
-      expect(result.error?.details[0].message).toContain('"name" length must be less than or equal to 200 characters long');
+      expect(result.error?.details[0].message).toContain(
+        '"name" length must be less than or equal to 200 characters long'
+      );
     });
 
     it('should fail validation when description is too short', () => {
@@ -102,12 +111,14 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
       expect(result.error).toBeDefined();
-      expect(result.error?.details[0].message).toContain('"description" length must be at least 10 characters long');
+      expect(result.error?.details[0].message).toContain(
+        '"description" length must be at least 10 characters long'
+      );
     });
 
     it('should fail validation when price is negative', () => {
@@ -120,7 +131,7 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
@@ -138,7 +149,7 @@ describe('Product Model', () => {
         stock: 10,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
@@ -156,12 +167,14 @@ describe('Product Model', () => {
         stock: -5,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(invalidProduct);
       expect(result.error).toBeDefined();
-      expect(result.error?.details[0].message).toContain('"stock" must be greater than or equal to 0');
+      expect(result.error?.details[0].message).toContain(
+        '"stock" must be greater than or equal to 0'
+      );
     });
 
     it('should allow stock to be zero', () => {
@@ -174,7 +187,7 @@ describe('Product Model', () => {
         stock: 0,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(validProduct);
@@ -191,7 +204,7 @@ describe('Product Model', () => {
         price: 99.99,
         category: 'electronics',
         stock: 10,
-        isActive: true
+        isActive: true,
       };
 
       const result = createProductSchema.validate(validProduct);
@@ -204,7 +217,7 @@ describe('Product Model', () => {
         name: 'Test Product',
         description: 'A test product with sufficient description',
         price: 99.99,
-        category: 'electronics'
+        category: 'electronics',
       };
 
       const result = createProductSchema.validate(productWithoutDefaults);
@@ -212,7 +225,7 @@ describe('Product Model', () => {
       expect(result.value).toEqual({
         ...productWithoutDefaults,
         stock: 0,
-        isActive: true
+        isActive: true,
       });
     });
 
@@ -220,7 +233,7 @@ describe('Product Model', () => {
       const invalidProduct = {
         description: 'A test product with sufficient description',
         price: 99.99,
-        category: 'electronics'
+        category: 'electronics',
       };
 
       const result = createProductSchema.validate(invalidProduct);
@@ -233,7 +246,7 @@ describe('Product Model', () => {
         name: 'Test Product',
         description: 'A test product with sufficient description',
         price: 0,
-        category: 'electronics'
+        category: 'electronics',
       };
 
       const result = createProductSchema.validate(invalidProduct);
@@ -246,7 +259,7 @@ describe('Product Model', () => {
     it('should validate a valid update product request', () => {
       const validUpdate: IUpdateProduct = {
         name: 'Updated Product',
-        price: 149.99
+        price: 149.99,
       };
 
       const result = updateProductSchema.validate(validUpdate);
@@ -256,7 +269,7 @@ describe('Product Model', () => {
 
     it('should allow partial updates', () => {
       const partialUpdate: IUpdateProduct = {
-        price: 149.99
+        price: 149.99,
       };
 
       const result = updateProductSchema.validate(partialUpdate);
@@ -274,7 +287,7 @@ describe('Product Model', () => {
 
     it('should fail validation when price is negative', () => {
       const invalidUpdate: IUpdateProduct = {
-        price: -10
+        price: -10,
       };
 
       const result = updateProductSchema.validate(invalidUpdate);
@@ -284,20 +297,22 @@ describe('Product Model', () => {
 
     it('should fail validation when stock is negative', () => {
       const invalidUpdate: IUpdateProduct = {
-        stock: -5
+        stock: -5,
       };
 
       const result = updateProductSchema.validate(invalidUpdate);
       expect(result.error).toBeDefined();
-      expect(result.error?.details[0].message).toContain('"stock" must be greater than or equal to 0');
+      expect(result.error?.details[0].message).toContain(
+        '"stock" must be greater than or equal to 0'
+      );
     });
   });
 
   describe('Category Validation', () => {
     it('should accept all valid categories', () => {
       const validCategories = ['electronics', 'books', 'clothing', 'home', 'sports'];
-      
-      validCategories.forEach(category => {
+
+      validCategories.forEach((category) => {
         const validProduct = {
           id: '123e4567-e89b-12d3-a456-426614174000',
           name: 'Test Product',
@@ -307,7 +322,7 @@ describe('Product Model', () => {
           stock: 10,
           isActive: true,
           createdAt: '2023-01-01T00:00:00.000Z',
-          updatedAt: '2023-01-01T00:00:00.000Z'
+          updatedAt: '2023-01-01T00:00:00.000Z',
         };
 
         const result = ProductSchema.validate(validProduct);
@@ -327,7 +342,7 @@ describe('Product Model', () => {
         stock: 0,
         isActive: false,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(validProduct);
@@ -344,11 +359,11 @@ describe('Product Model', () => {
         stock: 999999,
         isActive: true,
         createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z'
+        updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
       const result = ProductSchema.validate(validProduct);
       expect(result.error).toBeUndefined();
     });
   });
-}); 
+});

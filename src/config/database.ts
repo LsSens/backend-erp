@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import { DynamoDBUser } from '@/types';
+import type { DynamoDBUser } from '@/types';
 
 // Configure AWS SDK
 AWS.config.update({
@@ -45,7 +45,7 @@ export const updateUserRecord = (id: string, updates: Record<string, any>) => {
   Object.entries(updates).forEach(([key, value]) => {
     const attributeName = `#${key}`;
     const attributeValue = `:${key}`;
-    
+
     updateExpression.push(`${attributeName} = ${attributeValue}`);
     expressionAttributeNames[attributeName] = key;
     expressionAttributeValues[attributeValue] = value;
@@ -80,4 +80,4 @@ export const scanUsers = (limit = 100, lastEvaluatedKey?: any) => ({
   },
   Limit: limit,
   ...(lastEvaluatedKey && { ExclusiveStartKey: lastEvaluatedKey }),
-}); 
+});
