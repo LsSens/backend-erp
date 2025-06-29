@@ -116,18 +116,22 @@ The system uses AWS Cognito for authentication and authorization. Protected rout
 
 ### Usage example:
 ```bash
-curl -H "Authorization: Bearer <jwt-token>" http://localhost:3000/api/v1/users
+curl -H "Authorization: Bearer <jwt-token>" http://localhost:8080/api/v1/users
 ```
 
-## 📊 API Endpoints
+## 📚 API Documentation
 
-### Users
+The API documentation is available through Swagger UI, providing an interactive interface to explore and test all available endpoints.
 
-- `GET /api/v1/users` - List all users (requires authentication)
-- `GET /api/v1/users/:id` - Get user by ID (requires authentication)
-- `POST /api/v1/users` - Create new user (requires authentication)
-- `PUT /api/v1/users/:id` - Update user (requires authentication)
-- `DELETE /api/v1/users/:id` - Delete user (requires authentication)
+### Access Documentation
+- **Development**: http://localhost:8080/api-docs
+
+The documentation includes:
+- Complete API reference with all endpoints
+- Request/response schemas and examples
+- Authentication requirements
+- Interactive testing interface
+- Detailed error responses
 
 ## 🔧 DynamoDB Configuration
 
