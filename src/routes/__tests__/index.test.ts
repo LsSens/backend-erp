@@ -5,6 +5,22 @@ import helmet from 'helmet';
 import request from 'supertest';
 import router from '../index';
 
+// Mock the auth middleware to return 401 for testing
+jest.mock('../../middlewares/auth', () => ({
+  authenticateToken: (req: any, res: any, next: any) => {
+    if (!req.headers.authorization) {
+      return res.status(401).json({
+        success: false,
+        error: 'Access token required',
+      });
+    }
+    next();
+  },
+  requireUser: (_req: any, _res: any, next: any) => next(),
+  requireManager: (_req: any, _res: any, next: any) => next(),
+  requireAdmin: (_req: any, _res: any, next: any) => next(),
+}));
+
 const app = express();
 const API_VERSION = 'v1';
 
@@ -106,12 +122,18 @@ describe('Routes Index', () => {
       const response = await request(app).get('/api/v1/users').expect(401); // Should return 401 due to missing auth token
 
       // The fact that it returns 401 instead of 404 means the route exists
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toEqual({
+        success: false,
+        error: 'Access token required',
+      });
     });
 
     it('should return 401 for nested non-existent user routes', async () => {
       const response = await request(app).get('/api/v1/users/non-existent').expect(401);
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toEqual({
+        success: false,
+        error: 'Access token required',
+      });
     });
   });
 });

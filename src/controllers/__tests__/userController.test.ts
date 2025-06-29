@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { UserService } from '../../services/userService';
 import { UserRole } from '../../types';
 import { UserController } from '../userController';
@@ -14,6 +14,8 @@ const mockResponse = () => {
   res.json = jest.fn().mockReturnThis();
   return res as Response;
 };
+
+const mockNext = jest.fn() as NextFunction;
 
 describe('UserController', () => {
   const mockUser = {
@@ -41,7 +43,7 @@ describe('UserController', () => {
       });
       const req = { query: { page: '1', limit: '10' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.listUsers(req, res);
+      await UserController.listUsers(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
@@ -49,11 +51,8 @@ describe('UserController', () => {
       (UserService.listUsers as jest.Mock).mockRejectedValue(new Error('DB error'));
       const req = { query: {} } as unknown as Request;
       const res = mockResponse();
-      await UserController.listUsers(req, res);
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'DB error' })
-      );
+      await UserController.listUsers(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
@@ -62,7 +61,7 @@ describe('UserController', () => {
       (UserService.getUserById as jest.Mock).mockResolvedValue(mockUser);
       const req = { params: { id: '1' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.getUserById(req, res);
+      await UserController.getUserById(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ success: true, data: mockUser })
@@ -71,31 +70,22 @@ describe('UserController', () => {
     it('should return 400 if id not provided', async () => {
       const req = { params: {} } as unknown as Request;
       const res = mockResponse();
-      await UserController.getUserById(req, res);
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'User ID not provided' })
-      );
+      await UserController.getUserById(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
     it('should return 404 if user not found', async () => {
       (UserService.getUserById as jest.Mock).mockResolvedValue(null);
       const req = { params: { id: '2' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.getUserById(req, res);
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'User not found' })
-      );
+      await UserController.getUserById(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
     it('should handle errors', async () => {
       (UserService.getUserById as jest.Mock).mockRejectedValue(new Error('DB error'));
       const req = { params: { id: '1' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.getUserById(req, res);
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'DB error' })
-      );
+      await UserController.getUserById(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
@@ -104,7 +94,7 @@ describe('UserController', () => {
       (UserService.createUser as jest.Mock).mockResolvedValue(mockUser);
       const req = { body: mockUser } as unknown as Request;
       const res = mockResponse();
-      await UserController.createUser(req, res);
+      await UserController.createUser(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ success: true, data: mockUser })
@@ -114,11 +104,8 @@ describe('UserController', () => {
       (UserService.createUser as jest.Mock).mockRejectedValue(new Error('DB error'));
       const req = { body: mockUser } as unknown as Request;
       const res = mockResponse();
-      await UserController.createUser(req, res);
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'DB error' })
-      );
+      await UserController.createUser(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
@@ -127,7 +114,7 @@ describe('UserController', () => {
       (UserService.updateUser as jest.Mock).mockResolvedValue(mockUser);
       const req = { params: { id: '1' }, body: { name: 'Updated' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.updateUser(req, res);
+      await UserController.updateUser(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ success: true, data: mockUser })
@@ -136,21 +123,15 @@ describe('UserController', () => {
     it('should return 400 if id not provided', async () => {
       const req = { params: {}, body: {} } as unknown as Request;
       const res = mockResponse();
-      await UserController.updateUser(req, res);
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'User ID not provided' })
-      );
+      await UserController.updateUser(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
     it('should handle errors', async () => {
       (UserService.updateUser as jest.Mock).mockRejectedValue(new Error('DB error'));
       const req = { params: { id: '1' }, body: { name: 'Updated' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.updateUser(req, res);
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'DB error' })
-      );
+      await UserController.updateUser(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
@@ -159,28 +140,22 @@ describe('UserController', () => {
       (UserService.deleteUser as jest.Mock).mockResolvedValue(undefined);
       const req = { params: { id: '1' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.deleteUser(req, res);
+      await UserController.deleteUser(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
     it('should return 400 if id not provided', async () => {
       const req = { params: {} } as unknown as Request;
       const res = mockResponse();
-      await UserController.deleteUser(req, res);
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'User ID not provided' })
-      );
+      await UserController.deleteUser(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
     it('should handle errors', async () => {
       (UserService.deleteUser as jest.Mock).mockRejectedValue(new Error('DB error'));
       const req = { params: { id: '1' } } as unknown as Request;
       const res = mockResponse();
-      await UserController.deleteUser(req, res);
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: 'DB error' })
-      );
+      await UserController.deleteUser(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 });

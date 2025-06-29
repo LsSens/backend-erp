@@ -1,5 +1,5 @@
-import swaggerJsdoc from 'swagger-jsdoc';
 import dotenv from 'dotenv';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 dotenv.config();
 
@@ -236,4 +236,4 @@ const options = {
   ],
 };
 
-export const specs = swaggerJsdoc(options); 
+export const specs = swaggerJsdoc(options);

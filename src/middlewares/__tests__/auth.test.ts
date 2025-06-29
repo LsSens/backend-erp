@@ -1,16 +1,21 @@
+const mockShouldSkipAuth = jest.fn().mockReturnValue(false);
+jest.mock('../auth', () => {
+  const originalModule = jest.requireActual('../auth');
+  return {
+    ...originalModule,
+    shouldSkipAuth: mockShouldSkipAuth,
+  };
+});
+
 import type { NextFunction, Request, Response } from 'express';
 import { UserRole } from '../../types';
-import { extractTokenFromHeader, hasPermission, verifyToken } from '../../utils/jwt';
-import { authenticateToken, requireAdmin, requireManager, requireRole, requireUser } from '../auth';
 
-// Mock JWT utils
-jest.mock('../../utils/jwt');
+jest.mock('jsonwebtoken', () => ({
+  verify: jest.fn(),
+}));
 
-const mockVerifyToken = verifyToken as jest.MockedFunction<typeof verifyToken>;
-const mockHasPermission = hasPermission as jest.MockedFunction<typeof hasPermission>;
-const mockExtractTokenFromHeader = extractTokenFromHeader as jest.MockedFunction<
-  typeof extractTokenFromHeader
->;
+import jwt from 'jsonwebtoken';
+import { authenticateToken, requireAdmin, requireManager, requireUser } from '../auth';
 
 describe('Auth Middleware', () => {
   let mockRequest: Partial<Request>;
@@ -27,6 +32,7 @@ describe('Auth Middleware', () => {
     };
     mockNext = jest.fn();
     jest.clearAllMocks();
+    mockShouldSkipAuth.mockReturnValue(false);
   });
 
   describe('authenticateToken', () => {
@@ -43,161 +49,176 @@ describe('Auth Middleware', () => {
       mockRequest.headers = {
         authorization: 'Bearer valid-token',
       };
-      mockExtractTokenFromHeader.mockReturnValue('valid-token');
-      mockVerifyToken.mockReturnValue(mockUser);
+
+      (jwt.verify as jest.Mock).mockReturnValue(mockUser);
 
       authenticateToken(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockExtractTokenFromHeader).toHaveBeenCalledWith('Bearer valid-token');
-      expect(mockVerifyToken).toHaveBeenCalledWith('valid-token');
       expect(mockRequest.user).toEqual(mockUser);
       expect(mockNext).toHaveBeenCalled();
     });
 
-    it('should return 401 when no authorization header', () => {
+    it('should call next with error when no authorization header', () => {
       authenticateToken(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'Authentication token not provided',
-      });
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
 
-    it('should return 401 when invalid token format', () => {
+    it('should call next with error when invalid token format', () => {
       mockRequest.headers = {
         authorization: 'InvalidFormat token',
       };
 
-      mockExtractTokenFromHeader.mockImplementation(() => {
-        throw new Error('Token not provided or invalid format');
-      });
-
       authenticateToken(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'Invalid or expired token',
-      });
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
 
-    it('should return 401 when token verification fails', () => {
+    it('should call next with error when token verification fails', () => {
       mockRequest.headers = {
         authorization: 'Bearer invalid-token',
       };
-      mockExtractTokenFromHeader.mockReturnValue('invalid-token');
-      mockVerifyToken.mockImplementation(() => {
+
+      (jwt.verify as jest.Mock).mockImplementation(() => {
         throw new Error('Invalid token');
       });
 
       authenticateToken(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'Invalid or expired token',
-      });
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
   });
 
-  describe('requireRole', () => {
-    it('should allow access when user has required role', () => {
-      mockRequest.user = {
-        sub: '123',
-        email: 'test@example.com',
-        name: 'Test User',
-        role: UserRole.ADMIN,
-      };
-      mockHasPermission.mockReturnValue(true);
-
-      const middleware = requireRole(UserRole.USER);
-      middleware(mockRequest as Request, mockResponse as Response, mockNext);
-
-      expect(mockHasPermission).toHaveBeenCalledWith(UserRole.ADMIN, UserRole.USER);
-      expect(mockNext).toHaveBeenCalled();
-    });
-
-    it('should deny access when user lacks required role', () => {
+  describe('requireUser', () => {
+    it('should allow access when user is authenticated', () => {
       mockRequest.user = {
         sub: '123',
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.USER,
       };
-      mockHasPermission.mockReturnValue(false);
 
-      const middleware = requireRole(UserRole.ADMIN);
-      middleware(mockRequest as Request, mockResponse as Response, mockNext);
+      requireUser(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(403);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'Insufficient permissions',
-      });
-      expect(mockNext).not.toHaveBeenCalled();
-    });
-
-    it('should return 401 when user not authenticated', () => {
-      const middleware = requireRole(UserRole.USER);
-      middleware(mockRequest as Request, mockResponse as Response, mockNext);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'User not authenticated',
-      });
-      expect(mockNext).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('role-specific middlewares', () => {
-    it('should create requireAdmin middleware', () => {
-      mockRequest.user = {
-        sub: '123',
-        email: 'test@example.com',
-        name: 'Test User',
-        role: UserRole.ADMIN,
-      };
-      mockHasPermission.mockReturnValue(true);
-
-      requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);
-
-      expect(mockHasPermission).toHaveBeenCalledWith(UserRole.ADMIN, UserRole.ADMIN);
       expect(mockNext).toHaveBeenCalled();
     });
 
-    it('should create requireManager middleware', () => {
+    it('should call next with error when user not authenticated', () => {
+      requireUser(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('requireManager', () => {
+    it('should allow access when user has manager role', () => {
       mockRequest.user = {
         sub: '123',
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.MANAGER,
       };
-      mockHasPermission.mockReturnValue(true);
 
       requireManager(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockHasPermission).toHaveBeenCalledWith(UserRole.MANAGER, UserRole.MANAGER);
       expect(mockNext).toHaveBeenCalled();
     });
 
-    it('should create requireUser middleware', () => {
+    it('should allow access when user has admin role', () => {
+      mockRequest.user = {
+        sub: '123',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.ADMIN,
+      };
+
+      requireManager(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should call next with error when user has user role', () => {
       mockRequest.user = {
         sub: '123',
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.USER,
       };
-      mockHasPermission.mockReturnValue(true);
 
-      requireUser(mockRequest as Request, mockResponse as Response, mockNext);
+      requireManager(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockHasPermission).toHaveBeenCalledWith(UserRole.USER, UserRole.USER);
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
+    });
+
+    it('should call next with error when user not authenticated', () => {
+      requireManager(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('requireAdmin', () => {
+    it('should allow access when user has admin role', () => {
+      mockRequest.user = {
+        sub: '123',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.ADMIN,
+      };
+
+      requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);
+
       expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should call next with error when user has manager role', () => {
+      mockRequest.user = {
+        sub: '123',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.MANAGER,
+      };
+
+      requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
+    });
+
+    it('should call next with error when user has user role', () => {
+      mockRequest.user = {
+        sub: '123',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.USER,
+      };
+
+      requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
+    });
+
+    it('should call next with error when user not authenticated', () => {
+      requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 export interface ApiError extends Error {
   statusCode?: number;
   code?: string;
 }
 
-export const createError = (message: string, statusCode: number = 500, code?: string): ApiError => {
+export const createError = (message: string, statusCode = 500, code?: string): ApiError => {
   const error = new Error(message) as ApiError;
   error.statusCode = statusCode;
   error.code = code;
@@ -14,14 +14,14 @@ export const createError = (message: string, statusCode: number = 500, code?: st
 
 export const errorHandler = (
   error: ApiError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   console.error('Error:', error);
 
   const statusCode = error.statusCode || 500;
-  const message = error.message || 'Internal server error';
+  const message = error.message || 'Internal Server Error';
 
   res.status(statusCode).json({
     success: false,
@@ -29,9 +29,9 @@ export const errorHandler = (
   });
 };
 
-export const notFoundHandler = (req: Request, res: Response) => {
+export const notFoundHandler = (_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     error: 'Route not found',
   });
-}; 
+};

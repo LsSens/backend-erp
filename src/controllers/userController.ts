@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+import { createError } from '@/middlewares/errorHandler';
 import type { ICreateUser, IUpdateUser } from '@/models/User';
 import { UserService } from '@/services/userService';
-import { ApiResponse } from '@/types';
-import { createError } from '@/middlewares/errorHandler';
+import type { ApiResponse } from '@/types';
 
 export class UserController {
   // List all users

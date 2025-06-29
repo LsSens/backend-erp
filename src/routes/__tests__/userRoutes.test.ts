@@ -39,11 +39,16 @@ app.use((_req: express.Request, res: express.Response) => {
   });
 });
 
+// Mock all middlewares to pass through
 jest.mock('../../middlewares/auth', () => ({
   authenticateToken: (_req: any, _res: any, next: any) => next(),
   requireAdmin: (_req: any, _res: any, next: any) => next(),
   requireManager: (_req: any, _res: any, next: any) => next(),
   requireUser: (_req: any, _res: any, next: any) => next(),
+}));
+
+jest.mock('../../middlewares/validation', () => ({
+  validateRequest: () => (_req: any, _res: any, next: any) => next(),
 }));
 
 jest.mock('../../controllers/userController', () => ({

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { UserRole } from '@/types';
 import { createError } from './errorHandler';
@@ -17,7 +17,8 @@ declare global {
 }
 
 export const shouldSkipAuth = (): boolean => {
-  const isLocalEnvironment = process.env.NODE_ENV === 'development' || process.env.USE_LOCALSTACK === 'true';
+  const isLocalEnvironment =
+    process.env.NODE_ENV === 'development' || process.env.USE_LOCALSTACK === 'true';
   return isLocalEnvironment;
 };
 
@@ -28,14 +29,14 @@ const createMockUser = (role: UserRole = UserRole.ADMIN) => ({
   role: role,
 });
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = (req: Request, _res: Response, next: NextFunction) => {
   if (shouldSkipAuth()) {
     req.user = createMockUser();
     return next();
   }
 
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader?.split(' ')[1];
 
   if (!token) {
     return next(createError('Access token required', 401));
@@ -45,12 +46,12 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_key') as any;
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch (_error) {
     return next(createError('Invalid or expired token', 401));
   }
 };
 
-export const requireUser = (req: Request, res: Response, next: NextFunction) => {
+export const requireUser = (req: Request, _res: Response, next: NextFunction) => {
   if (shouldSkipAuth()) {
     if (!req.user) {
       req.user = createMockUser();
@@ -64,7 +65,7 @@ export const requireUser = (req: Request, res: Response, next: NextFunction) => 
   next();
 };
 
-export const requireManager = (req: Request, res: Response, next: NextFunction) => {
+export const requireManager = (req: Request, _res: Response, next: NextFunction) => {
   if (shouldSkipAuth()) {
     if (!req.user) {
       req.user = createMockUser(UserRole.MANAGER);
@@ -83,7 +84,7 @@ export const requireManager = (req: Request, res: Response, next: NextFunction) 
   next();
 };
 
-export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+export const requireAdmin = (req: Request, _res: Response, next: NextFunction) => {
   if (shouldSkipAuth()) {
     if (!req.user) {
       req.user = createMockUser(UserRole.ADMIN);

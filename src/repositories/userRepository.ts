@@ -1,5 +1,5 @@
-import { dynamoDB } from "@/config/database";
-import { DynamoDBUser } from "@/types";
+import { dynamoDB } from '@/config/database';
+import type { DynamoDBUser } from '@/types';
 
 // Table name
 const USERS_TABLE = 'users';
@@ -112,4 +112,4 @@ export class UserRepository {
   static async scan(params: any) {
     return dynamoDB.scan(params).promise();
   }
-} 
+}

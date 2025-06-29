@@ -39,7 +39,7 @@ describe('Validation Middleware', () => {
       expect(mockResponse.json).not.toHaveBeenCalled();
     });
 
-    it('should return 400 with validation error for invalid data', () => {
+    it('should call next with error for invalid data', () => {
       const schema = Joi.object({
         name: Joi.string().required(),
         email: Joi.string().email().required(),
@@ -53,15 +53,12 @@ describe('Validation Middleware', () => {
       const middleware = validateRequest(schema);
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: expect.stringContaining('email'),
-      });
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
 
-    it('should return 400 with validation error for missing required fields', () => {
+    it('should call next with error for missing required fields', () => {
       const schema = Joi.object({
         name: Joi.string().required(),
         email: Joi.string().email().required(),
@@ -75,15 +72,12 @@ describe('Validation Middleware', () => {
       const middleware = validateRequest(schema);
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: expect.stringContaining('email'),
-      });
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
 
-    it('should return 400 with validation error for empty body', () => {
+    it('should call next with error for empty body', () => {
       const schema = Joi.object({
         name: Joi.string().required(),
         email: Joi.string().email().required(),
@@ -94,12 +88,9 @@ describe('Validation Middleware', () => {
       const middleware = validateRequest(schema);
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: expect.stringContaining('name'),
-      });
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
 
     it('should handle complex validation schemas', () => {
@@ -159,12 +150,9 @@ describe('Validation Middleware', () => {
       const middleware = validateRequest(schema);
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: expect.any(String),
-      });
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
   });
 });
