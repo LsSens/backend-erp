@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
 import routes from './routes';
+import { specs } from './config/swagger';
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +33,13 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'ERP Backend API Documentation',
+  customfavIcon: '/favicon.ico',
+}));
+
 // API routes
 app.use(`/api/${API_VERSION}`, routes);
 
@@ -56,6 +65,7 @@ app.use((_req: express.Request, res: express.Response) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 API available at http://localhost:${PORT}/api/${API_VERSION}`);
+  console.log(`📚 Swagger UI available at http://localhost:${PORT}/api-docs`);
   console.log(`🔍 Health check at http://localhost:${PORT}/api/${API_VERSION}/health`);
 });
 

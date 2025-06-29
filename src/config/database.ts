@@ -12,7 +12,7 @@ AWS.config.update({
 export const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
 // Table name
-export const USERS_TABLE = process.env.DYNAMODB_TABLE_USERS || 'users-table';
+export const USERS_TABLE = process.env.DYNAMODB_TABLE_USERS || 'users';
 
 // Helper functions for DynamoDB
 export const createUserRecord = (user: DynamoDBUser) => ({
