@@ -1,4 +1,4 @@
-import { UserRole } from '../../types';
+import { UserRole } from '../../types/user';
 import {
   createUserSchema,
   type ICreateUser,

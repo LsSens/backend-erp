@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { UserService } from '../../services/userService';
-import { UserRole } from '../../types';
+import { UserRole } from '../../types/user';
 import { UserController } from '../userController';
 
 // Mock UserService

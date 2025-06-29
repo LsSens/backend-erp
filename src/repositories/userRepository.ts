@@ -1,5 +1,5 @@
 import { dynamoDB } from '@/config/database';
-import type { DynamoDBUser } from '@/types';
+import type { DynamoDBUser } from '@/types/user';
 
 // Table name
 const USERS_TABLE = 'users';

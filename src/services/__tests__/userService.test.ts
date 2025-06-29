@@ -1,5 +1,5 @@
 import type { ICreateUser, IUpdateUser } from '../../models/User';
-import { UserRole } from '../../types';
+import { UserRole } from '../../types/user';
 import { UserService } from '../userService';
 
 jest.mock('../../config/database', () => ({

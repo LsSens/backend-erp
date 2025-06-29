@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import { type CognitoUser, UserRole } from '@/types';
+import { type CognitoUser, UserRole } from '@/types/user';
 
 // Configure AWS Cognito
 export const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();

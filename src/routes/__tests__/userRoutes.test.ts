@@ -3,7 +3,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import request from 'supertest';
-import { UserRole } from '../../types';
+import { UserRole } from '../../types/user';
 import userRoutes from '../userRoutes';
 
 const app = express();

@@ -8,7 +8,8 @@ import {
 import { createError } from '@/middlewares/errorHandler';
 import type { ICreateUser, IUpdateUser } from '@/models/User';
 import { UserRepository } from '@/repositories/userRepository';
-import type { DynamoDBUser, PaginatedResponse, User } from '@/types';
+import type { PaginatedResponse } from '@/types';
+import type { DynamoDBUser, User } from '@/types/user';
 
 export class UserService {
   // Create user

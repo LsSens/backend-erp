@@ -10,7 +10,7 @@ jest.mock('aws-sdk', () => ({
   CognitoIdentityServiceProvider: jest.fn().mockImplementation(() => mockCognito),
 }));
 
-import { UserRole } from '../../types';
+import { UserRole } from '../../types/user';
 import {
   authenticateUser,
   COGNITO_CONFIG,

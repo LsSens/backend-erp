@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { type JwtPayload, UserRole } from '../../types';
+import type { JwtPayload } from '../../types';
+import { UserRole } from '../../types/user';
 import { generateToken, hasPermission, verifyToken } from '../jwt';
 
 // Mock JWT
@@ -35,7 +36,9 @@ describe('JWT Utils', () => {
       const result = generateToken(mockUser);
 
       expect(result).toBe(mockToken);
-      expect(mockJwt.sign).toHaveBeenCalledWith(mockUser, 'test-secret-key', { expiresIn: '24h' });
+      expect(mockJwt.sign).toHaveBeenCalledWith(mockUser, 'test-secret-key', {
+        expiresIn: '24h',
+      });
     });
 
     it('should throw error when JWT sign fails', () => {

@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { UserRole } from '@/types';
+import { UserRole } from '@/types/user';
 
 // User validation schemas
 export const UserSchema = Joi.object({

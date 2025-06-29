@@ -8,7 +8,7 @@ jest.mock('../auth', () => {
 });
 
 import type { NextFunction, Request, Response } from 'express';
-import { UserRole } from '../../types';
+import { UserRole } from '../../types/user';
 
 jest.mock('jsonwebtoken', () => ({
   verify: jest.fn(),

@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { UserRole } from '@/types';
+import { UserRole } from '@/types/user';
 import { createError } from './errorHandler';
 
 declare global {
