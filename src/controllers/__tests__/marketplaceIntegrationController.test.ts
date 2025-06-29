@@ -3,6 +3,7 @@ import { createError } from '../../middlewares/errorHandler';
 import { MarketplaceIntegrationService } from '../../services/marketplaceIntegrationService';
 import { IntegrationStatus, MarketplaceType } from '../../types/integration';
 import { MarketplaceIntegrationController } from '../marketplaceIntegrationController';
+import { UserRole } from '../../types/user';
 
 // Mock Service
 jest.mock('@/services/marketplaceIntegrationService', () => ({
@@ -262,16 +263,22 @@ describe('MarketplaceIntegrationController', () => {
   describe('createMarketplaceIntegration', () => {
     it('should create marketplace integration successfully', async () => {
       const createData = {
-        userId: 'user-id',
         marketplaceType: MarketplaceType.MERCADOLIVRE,
         accessToken: 'access-token',
       };
+      const userId = '123';
 
       (MarketplaceIntegrationService.createMarketplaceIntegration as jest.Mock).mockResolvedValue(
         mockIntegration
       );
       mockRequest.body = createData;
-
+      mockRequest.user = {
+        id: '123',
+        sub: '123',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.USER,
+      };
       await MarketplaceIntegrationController.createMarketplaceIntegration(
         mockRequest as Request,
         mockResponse as Response,
@@ -279,7 +286,8 @@ describe('MarketplaceIntegrationController', () => {
       );
 
       expect(MarketplaceIntegrationService.createMarketplaceIntegration).toHaveBeenCalledWith(
-        createData
+        createData,
+        userId
       );
       expect(mockResponse.status).toHaveBeenCalledWith(201);
       expect(mockResponse.json).toHaveBeenCalledWith({

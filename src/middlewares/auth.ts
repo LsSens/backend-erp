@@ -11,6 +11,7 @@ declare global {
         email: string;
         name: string;
         role: UserRole;
+        id: string;
       };
     }
   }
@@ -27,6 +28,7 @@ const createMockUser = (role: UserRole = UserRole.ADMIN) => ({
   email: 'dev@example.com',
   name: 'Development User',
   role: role,
+  id: '1',
 });
 
 export const authenticateToken = (req: Request, _res: Response, next: NextFunction) => {

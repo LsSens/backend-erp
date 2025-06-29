@@ -15,16 +15,17 @@ import {
 export class MarketplaceIntegrationService {
   // Create marketplace integration
   static async createMarketplaceIntegration(
-    data: ICreateMarketplaceIntegration
+    data: ICreateMarketplaceIntegration,
+    userId: string
   ): Promise<IMarketplaceIntegration> {
     const id = uuidv4();
     const now = new Date().toISOString();
 
     const integration: DynamoDBMarketplaceIntegration = {
-      PK: `USER#${data.userId}`,
+      PK: `USER#${userId}`,
       SK: `MARKETPLACE#${data.marketplaceType}#${id}`,
       id,
-      userId: data.userId,
+      userId,
       marketplaceType: data.marketplaceType,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
@@ -36,9 +37,9 @@ export class MarketplaceIntegrationService {
       createdAt: now,
       updatedAt: now,
       GSI1PK: `MARKETPLACE#${data.marketplaceType}`,
-      GSI1SK: `USER#${data.userId}#${id}`,
+      GSI1SK: `USER#${userId}#${id}`,
       GSI2PK: `STATUS#${IntegrationStatus.PENDING}`,
-      GSI2SK: `USER#${data.userId}#${data.marketplaceType}#${id}`,
+      GSI2SK: `USER#${userId}#${data.marketplaceType}#${id}`,
     };
 
     const params = MarketplaceIntegrationRepository.createMarketplaceIntegrationRecord(integration);

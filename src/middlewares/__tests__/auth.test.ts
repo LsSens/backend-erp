@@ -102,6 +102,7 @@ describe('Auth Middleware', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.USER,
+        id: '123',
       };
 
       requireUser(mockRequest as Request, mockResponse as Response, mockNext);
@@ -125,6 +126,7 @@ describe('Auth Middleware', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.MANAGER,
+        id: '123',
       };
 
       requireManager(mockRequest as Request, mockResponse as Response, mockNext);
@@ -138,6 +140,7 @@ describe('Auth Middleware', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.ADMIN,
+        id: '123',
       };
 
       requireManager(mockRequest as Request, mockResponse as Response, mockNext);
@@ -151,6 +154,7 @@ describe('Auth Middleware', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.USER,
+        id: '123',
       };
 
       requireManager(mockRequest as Request, mockResponse as Response, mockNext);
@@ -176,6 +180,7 @@ describe('Auth Middleware', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.ADMIN,
+        id: '123',
       };
 
       requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);
@@ -189,6 +194,7 @@ describe('Auth Middleware', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.MANAGER,
+        id: '123',
       };
 
       requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);
@@ -204,6 +210,7 @@ describe('Auth Middleware', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: UserRole.USER,
+        id: '123',
       };
 
       requireAdmin(mockRequest as Request, mockResponse as Response, mockNext);

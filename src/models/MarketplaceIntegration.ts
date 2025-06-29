@@ -76,7 +76,6 @@ export interface IMarketplaceIntegration {
 
 // Marketplace Integration creation interface
 export interface ICreateMarketplaceIntegration {
-  userId: string;
   marketplaceType: MarketplaceType;
   accessToken: string;
   refreshToken?: string;

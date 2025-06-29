@@ -60,7 +60,6 @@ describe('MarketplaceIntegrationService', () => {
   };
 
   const mockCreateData: ICreateMarketplaceIntegration = {
-    userId: '123e4567-e89b-12d3-a456-426614174001',
     marketplaceType: MarketplaceType.MERCADOLIVRE,
     accessToken: 'valid-access-token',
     refreshToken: 'valid-refresh-token',
@@ -86,15 +85,16 @@ describe('MarketplaceIntegrationService', () => {
       ).mockReturnValue(mockParams);
       (MarketplaceIntegrationRepository.put as jest.Mock).mockResolvedValue({});
 
+      const userId = '123e4567-e89b-12d3-a456-426614174001';
       const result =
-        await MarketplaceIntegrationService.createMarketplaceIntegration(mockCreateData);
+        await MarketplaceIntegrationService.createMarketplaceIntegration(mockCreateData, userId);
 
       expect(
         MarketplaceIntegrationRepository.createMarketplaceIntegrationRecord
       ).toHaveBeenCalledWith(
         expect.objectContaining({
           id: '123e4567-e89b-12d3-a456-426614174000',
-          userId: mockCreateData.userId,
+          userId,
           marketplaceType: mockCreateData.marketplaceType,
           accessToken: mockCreateData.accessToken,
           refreshToken: mockCreateData.refreshToken,
@@ -123,7 +123,7 @@ describe('MarketplaceIntegrationService', () => {
       ).mockReturnValue(mockParams);
       (MarketplaceIntegrationRepository.put as jest.Mock).mockResolvedValue({});
 
-      await MarketplaceIntegrationService.createMarketplaceIntegration(minimalData);
+      await MarketplaceIntegrationService.createMarketplaceIntegration(minimalData, '123e4567-e89b-12d3-a456-426614174001');
 
       expect(
         MarketplaceIntegrationRepository.createMarketplaceIntegrationRecord
