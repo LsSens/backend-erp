@@ -266,13 +266,12 @@ describe('MarketplaceIntegrationController', () => {
         marketplaceType: MarketplaceType.MERCADOLIVRE,
         accessToken: 'access-token',
       };
-      const userId = '123';
 
       (MarketplaceIntegrationService.createMarketplaceIntegration as jest.Mock).mockResolvedValue(
         mockIntegration
       );
       mockRequest.body = createData;
-      mockRequest.user = {
+      (mockRequest as any).user = {
         id: '123',
         sub: '123',
         email: 'test@example.com',
@@ -287,7 +286,7 @@ describe('MarketplaceIntegrationController', () => {
 
       expect(MarketplaceIntegrationService.createMarketplaceIntegration).toHaveBeenCalledWith(
         createData,
-        userId
+        '123'
       );
       expect(mockResponse.status).toHaveBeenCalledWith(201);
       expect(mockResponse.json).toHaveBeenCalledWith({
