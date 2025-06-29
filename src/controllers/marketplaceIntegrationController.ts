@@ -133,8 +133,10 @@ export class MarketplaceIntegrationController {
       const integrationData: ICreateMarketplaceIntegration = req.body;
       const userId = req.user?.id as string;
 
-      const integration =
-        await MarketplaceIntegrationService.createMarketplaceIntegration(integrationData, userId);
+      const integration = await MarketplaceIntegrationService.createMarketplaceIntegration(
+        integrationData,
+        userId
+      );
 
       const response: ApiResponse = {
         success: true,

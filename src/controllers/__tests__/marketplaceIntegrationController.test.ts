@@ -2,8 +2,8 @@ import type { Request, Response } from 'express';
 import { createError } from '../../middlewares/errorHandler';
 import { MarketplaceIntegrationService } from '../../services/marketplaceIntegrationService';
 import { IntegrationStatus, MarketplaceType } from '../../types/integration';
-import { MarketplaceIntegrationController } from '../marketplaceIntegrationController';
 import { UserRole } from '../../types/user';
+import { MarketplaceIntegrationController } from '../marketplaceIntegrationController';
 
 // Mock Service
 jest.mock('@/services/marketplaceIntegrationService', () => ({

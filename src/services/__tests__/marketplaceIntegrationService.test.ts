@@ -86,8 +86,10 @@ describe('MarketplaceIntegrationService', () => {
       (MarketplaceIntegrationRepository.put as jest.Mock).mockResolvedValue({});
 
       const userId = '123e4567-e89b-12d3-a456-426614174001';
-      const result =
-        await MarketplaceIntegrationService.createMarketplaceIntegration(mockCreateData, userId);
+      const result = await MarketplaceIntegrationService.createMarketplaceIntegration(
+        mockCreateData,
+        userId
+      );
 
       expect(
         MarketplaceIntegrationRepository.createMarketplaceIntegrationRecord
@@ -123,7 +125,10 @@ describe('MarketplaceIntegrationService', () => {
       ).mockReturnValue(mockParams);
       (MarketplaceIntegrationRepository.put as jest.Mock).mockResolvedValue({});
 
-      await MarketplaceIntegrationService.createMarketplaceIntegration(minimalData, '123e4567-e89b-12d3-a456-426614174001');
+      await MarketplaceIntegrationService.createMarketplaceIntegration(
+        minimalData,
+        '123e4567-e89b-12d3-a456-426614174001'
+      );
 
       expect(
         MarketplaceIntegrationRepository.createMarketplaceIntegrationRecord
