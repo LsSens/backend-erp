@@ -1,11 +1,12 @@
-import type { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import type { ICreateUser, IUpdateUser } from '@/models/User';
 import { UserService } from '@/services/userService';
-import type { ApiResponse } from '@/types';
+import { ApiResponse } from '@/types';
+import { createError } from '@/middlewares/errorHandler';
 
 export class UserController {
   // List all users
-  static async listUsers(req: Request, res: Response): Promise<void> {
+  static async listUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const page = Number.parseInt((req.query as any).page as string) || 1;
       const limit = Number.parseInt((req.query as any).limit as string) || 10;
@@ -20,39 +21,23 @@ export class UserController {
 
       res.status(200).json(response);
     } catch (error) {
-      const response: ApiResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-      };
-
-      res.status(500).json(response);
+      next(createError(error instanceof Error ? error.message : 'Internal server error', 500));
     }
   }
 
   // Get user by ID
-  static async getUserById(req: Request, res: Response): Promise<void> {
+  static async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
 
       if (!id) {
-        const response: ApiResponse = {
-          success: false,
-          error: 'User ID not provided',
-        };
-        res.status(400).json(response);
-        return;
+        return next(createError('User ID not provided', 400));
       }
 
       const user = await UserService.getUserById(id);
 
       if (!user) {
-        const response: ApiResponse = {
-          success: false,
-          error: 'User not found',
-        };
-
-        res.status(404).json(response);
-        return;
+        return next(createError('User not found', 404));
       }
 
       const response: ApiResponse = {
@@ -63,17 +48,12 @@ export class UserController {
 
       res.status(200).json(response);
     } catch (error) {
-      const response: ApiResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-      };
-
-      res.status(500).json(response);
+      next(createError(error instanceof Error ? error.message : 'Internal server error', 500));
     }
   }
 
   // Create new user
-  static async createUser(req: Request, res: Response): Promise<void> {
+  static async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userData: ICreateUser = req.body;
 
@@ -87,28 +67,18 @@ export class UserController {
 
       res.status(201).json(response);
     } catch (error) {
-      const response: ApiResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-      };
-
-      res.status(500).json(response);
+      next(createError(error instanceof Error ? error.message : 'Internal server error', 500));
     }
   }
 
   // Update user
-  static async updateUser(req: Request, res: Response): Promise<void> {
+  static async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
       const updates: IUpdateUser = req.body;
 
       if (!id) {
-        const response: ApiResponse = {
-          success: false,
-          error: 'User ID not provided',
-        };
-        res.status(400).json(response);
-        return;
+        return next(createError('User ID not provided', 400));
       }
 
       const user = await UserService.updateUser(id, updates);
@@ -121,27 +91,17 @@ export class UserController {
 
       res.status(200).json(response);
     } catch (error) {
-      const response: ApiResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-      };
-
-      res.status(500).json(response);
+      next(createError(error instanceof Error ? error.message : 'Internal server error', 500));
     }
   }
 
   // Delete user
-  static async deleteUser(req: Request, res: Response): Promise<void> {
+  static async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
 
       if (!id) {
-        const response: ApiResponse = {
-          success: false,
-          error: 'User ID not provided',
-        };
-        res.status(400).json(response);
-        return;
+        return next(createError('User ID not provided', 400));
       }
 
       await UserService.deleteUser(id);
@@ -153,12 +113,7 @@ export class UserController {
 
       res.status(200).json(response);
     } catch (error) {
-      const response: ApiResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-      };
-
-      res.status(500).json(response);
+      next(createError(error instanceof Error ? error.message : 'Internal server error', 500));
     }
   }
 }

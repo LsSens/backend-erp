@@ -12,7 +12,7 @@ const options = {
       description: 'Complete API for ERP system with JWT authentication and DynamoDB',
       contact: {
         name: 'Lucas Sens',
-        email: 'lucas@example.com',
+        email: 'lucassousasens@gmail.comm',
       },
       license: {
         name: 'MIT',
@@ -230,9 +230,9 @@ const options = {
     ],
   },
   apis: [
-    './src/routes/*.ts',
-    './src/controllers/*.ts',
-    './src/models/*.ts',
+    './src/routes/docs/*.swagger.ts',
+    './src/controllers/docs/*.swagger.ts',
+    './src/models/docs/*.swagger.ts',
   ],
 };
 

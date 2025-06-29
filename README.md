@@ -42,7 +42,6 @@ cp env.example .env
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key_id
 AWS_SECRET_ACCESS_KEY=your_secret_access_key
-DYNAMODB_TABLE_USERS=users-table
 
 # AWS Cognito
 COGNITO_USER_POOL_ID=your_user_pool_id
@@ -132,7 +131,7 @@ curl -H "Authorization: Bearer <jwt-token>" http://localhost:3000/api/v1/users
 
 ## 🔧 DynamoDB Configuration
 
-1. Create a table in DynamoDB with the name specified in `DYNAMODB_TABLE_USERS`
+1. Create a table in DynamoDB with the name specified in `users`
 2. Configure IAM permissions for DynamoDB access
 3. Configure environment variables with your AWS credentials
 

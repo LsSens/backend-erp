@@ -1,83 +1,25 @@
 import AWS from 'aws-sdk';
-import type { DynamoDBUser } from '@/types';
 
-// Configure AWS SDK
-AWS.config.update({
+// Configure AWS SDK for LocalStack
+const awsConfig: any = {
   region: process.env.AWS_REGION || 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-});
-
-// Instantiate DynamoDB
-export const dynamoDB = new AWS.DynamoDB.DocumentClient();
-
-// Table name
-export const USERS_TABLE = process.env.DYNAMODB_TABLE_USERS || 'users';
-
-// Helper functions for DynamoDB
-export const createUserRecord = (user: DynamoDBUser) => ({
-  TableName: USERS_TABLE,
-  Item: user,
-});
-
-export const getUserById = (id: string) => ({
-  TableName: USERS_TABLE,
-  Key: {
-    PK: `USER#${id}`,
-    SK: `USER#${id}`,
-  },
-});
-
-export const getUserByEmail = (email: string) => ({
-  TableName: USERS_TABLE,
-  IndexName: 'GSI1',
-  KeyConditionExpression: 'GSI1PK = :email',
-  ExpressionAttributeValues: {
-    ':email': `EMAIL#${email}`,
-  },
-});
-
-export const updateUserRecord = (id: string, updates: Record<string, any>) => {
-  const updateExpression: string[] = [];
-  const expressionAttributeNames: Record<string, string> = {};
-  const expressionAttributeValues: Record<string, any> = {};
-
-  Object.entries(updates).forEach(([key, value]) => {
-    const attributeName = `#${key}`;
-    const attributeValue = `:${key}`;
-
-    updateExpression.push(`${attributeName} = ${attributeValue}`);
-    expressionAttributeNames[attributeName] = key;
-    expressionAttributeValues[attributeValue] = value;
-  });
-
-  return {
-    TableName: USERS_TABLE,
-    Key: {
-      PK: `USER#${id}`,
-      SK: `USER#${id}`,
-    },
-    UpdateExpression: `SET ${updateExpression.join(', ')}`,
-    ExpressionAttributeNames: expressionAttributeNames,
-    ExpressionAttributeValues: expressionAttributeValues,
-    ReturnValues: 'ALL_NEW',
-  };
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'test',
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'test',
 };
 
-export const deleteUserRecord = (id: string) => ({
-  TableName: USERS_TABLE,
-  Key: {
-    PK: `USER#${id}`,
-    SK: `USER#${id}`,
-  },
-});
+// Use LocalStack endpoint if configured
+if (process.env.NODE_ENV === 'development' || process.env.USE_LOCALSTACK === 'true') {
+  awsConfig.endpoint = process.env.LOCALSTACK_ENDPOINT || 'http://localhost:4566';
+  awsConfig.credentials = {
+    accessKeyId: 'test',
+    secretAccessKey: 'test',
+  };
+  // Configurações específicas para LocalStack
+  awsConfig.sslEnabled = false;
+  awsConfig.maxRetries = 3;
+}
 
-export const scanUsers = (limit = 100, lastEvaluatedKey?: any) => ({
-  TableName: USERS_TABLE,
-  FilterExpression: 'begins_with(PK, :pk)',
-  ExpressionAttributeValues: {
-    ':pk': 'USER#',
-  },
-  Limit: limit,
-  ...(lastEvaluatedKey && { ExclusiveStartKey: lastEvaluatedKey }),
-});
+AWS.config.update(awsConfig);
+
+// Export DynamoDB instance for general use
+export const dynamoDB = new AWS.DynamoDB.DocumentClient();

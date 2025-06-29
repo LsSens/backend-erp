@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import routes from './routes';
 import { specs } from './config/swagger';
+import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
 
 // Load environment variables
 dotenv.config();
@@ -44,29 +45,17 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 app.use(`/api/${API_VERSION}`, routes);
 
 // Error handling middleware
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Error:', err);
-
-  res.status(500).json({
-    success: false,
-    error: 'Internal server error',
-  });
-});
+app.use(errorHandler);
 
 // 404 middleware
-app.use((_req: express.Request, res: express.Response) => {
-  res.status(404).json({
-    success: false,
-    error: 'Route not found',
-  });
-});
+app.use(notFoundHandler);
 
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 API available at http://localhost:${PORT}/api/${API_VERSION}`);
-  console.log(`📚 Swagger UI available at http://localhost:${PORT}/api-docs`);
   console.log(`🔍 Health check at http://localhost:${PORT}/api/${API_VERSION}/health`);
+  console.log(`📚 Swagger UI available at http://localhost:${PORT}/api-docs`);
 });
 
 export default app;
