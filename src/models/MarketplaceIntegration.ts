@@ -26,6 +26,7 @@ export const createMarketplaceIntegrationSchema = Joi.object({
   marketplaceType: Joi.string()
     .valid(...Object.values(MarketplaceType))
     .required(),
+  code: Joi.string().required(),
   accessToken: Joi.string().required(),
   refreshToken: Joi.string().optional(),
   sellerId: Joi.string().optional(),
@@ -77,6 +78,7 @@ export interface IMarketplaceIntegration {
 // Marketplace Integration creation interface
 export interface ICreateMarketplaceIntegration {
   marketplaceType: MarketplaceType;
+  code: string;
   accessToken: string;
   refreshToken?: string;
   sellerId?: string;

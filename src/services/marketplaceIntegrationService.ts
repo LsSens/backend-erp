@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { createError } from '@/middlewares/errorHandler';
 import type {
   ICreateMarketplaceIntegration,
   IMarketplaceIntegration,
@@ -9,8 +10,9 @@ import type { PaginatedResponse } from '@/types';
 import {
   type DynamoDBMarketplaceIntegration,
   IntegrationStatus,
-  type MarketplaceType,
+  MarketplaceType,
 } from '@/types/integration';
+import { MercadoLivreService } from './marketplaces/mercadolivreService';
 
 export class MarketplaceIntegrationService {
   // Create marketplace integration
@@ -21,24 +23,27 @@ export class MarketplaceIntegrationService {
     const id = uuidv4();
     const now = new Date().toISOString();
 
+    const { accessToken, refreshToken, sellerId, storeName } =
+      await MarketplaceIntegrationService.getMarketplaceAuthInfo(data.marketplaceType, data.code);
+
     const integration: DynamoDBMarketplaceIntegration = {
       PK: `USER#${userId}`,
       SK: `MARKETPLACE#${data.marketplaceType}#${id}`,
       id,
       userId,
       marketplaceType: data.marketplaceType,
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-      sellerId: data.sellerId,
-      storeName: data.storeName,
-      status: IntegrationStatus.PENDING,
+      accessToken,
+      refreshToken,
+      sellerId,
+      storeName,
+      status: IntegrationStatus.ACTIVE,
       lastSyncAt: undefined,
       errorMessage: undefined,
       createdAt: now,
       updatedAt: now,
       GSI1PK: `MARKETPLACE#${data.marketplaceType}`,
       GSI1SK: `USER#${userId}#${id}`,
-      GSI2PK: `STATUS#${IntegrationStatus.PENDING}`,
+      GSI2PK: `STATUS#${IntegrationStatus.ACTIVE}`,
       GSI2SK: `USER#${userId}#${data.marketplaceType}#${id}`,
     };
 
@@ -226,5 +231,33 @@ export class MarketplaceIntegrationService {
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     };
+  }
+
+  static async getMarketplaceAuthInfo(
+    marketplaceType: MarketplaceType,
+    code: string
+  ): Promise<{
+    marketplaceType: MarketplaceType;
+    accessToken: string;
+    refreshToken: string;
+    sellerId: string;
+    storeName: string;
+  }> {
+    try {
+      if (marketplaceType === MarketplaceType.MERCADOLIVRE) {
+        const { accessToken, refreshToken, sellerId, storeName } =
+          await MercadoLivreService.getMarketplaceAuthInfo(code);
+        return {
+          marketplaceType,
+          accessToken,
+          refreshToken,
+          sellerId,
+          storeName,
+        };
+      }
+      throw createError('Marketplace type not supported', 400);
+    } catch (_error) {
+      throw createError('Error getting marketplace info', 500);
+    }
   }
 }
