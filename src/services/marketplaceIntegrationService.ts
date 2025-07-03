@@ -10,9 +10,9 @@ import type { PaginatedResponse } from '@/types';
 import {
   type DynamoDBMarketplaceIntegration,
   IntegrationStatus,
-  MarketplaceType,
+  type MarketplaceType,
 } from '@/types/integration';
-import { MercadoLivreService } from './marketplaces/mercadolivreService';
+import marketplaceFactory from './marketplace.factory';
 
 export class MarketplaceIntegrationService {
   // Create marketplace integration
@@ -244,18 +244,17 @@ export class MarketplaceIntegrationService {
     storeName: string;
   }> {
     try {
-      if (marketplaceType === MarketplaceType.MERCADOLIVRE) {
-        const { accessToken, refreshToken, sellerId, storeName } =
-          await MercadoLivreService.getMarketplaceAuthInfo(code);
-        return {
-          marketplaceType,
-          accessToken,
-          refreshToken,
-          sellerId,
-          storeName,
-        };
-      }
-      throw createError('Marketplace type not supported', 400);
+      const { accessToken, refreshToken, sellerId, storeName } = await marketplaceFactory(
+        marketplaceType,
+        code
+      );
+      return {
+        marketplaceType,
+        accessToken,
+        refreshToken,
+        sellerId,
+        storeName,
+      };
     } catch (_error) {
       throw createError('Error getting marketplace info', 500);
     }
