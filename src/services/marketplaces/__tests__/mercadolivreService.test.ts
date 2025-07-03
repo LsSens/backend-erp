@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { MarketplaceType } from '../../types/integration';
-import { MercadoLivreService } from '../marketplaces/mercadolivreService';
+import { MarketplaceType } from '../../../types/integration';
+import { MercadoLivreService } from '../mercadolivreService';
 
 // Mock axios
 jest.mock('axios');
